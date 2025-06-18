@@ -48,8 +48,8 @@ graph TB
 ### Fluxo de Comunicação
 ```mermaid
 graph LR
-    A[Componente Pai] -->|@Input| B[Componente Filho]
-    B -->|@Output| A
+    A[Componente Pai] -->|Input| B[Componente Filho]
+    B -->|Output| A
     C[Serviço] -->|Observable| A
     C -->|Observable| B
 ```
