@@ -6,18 +6,106 @@
 
 ## 📑 Índice
 
-1. [Visão Geral](#visão-geral)
-2. [Diagrama de Fluxo](#diagrama-de-fluxo)
-3. [Etapas Detalhadas](#etapas-detalhadas)
-4. [Setup do Repositório](#setup-do-repositório)
-5. [Pipeline CI/CD](#pipeline-cicd)
-6. [Consumindo a Lib](#consumindo-a-lib)
-7. [Boas Práticas](#boas-práticas)
-8. [Referências](#referências)
+1. [O que é Storybook?](#o-que-é-storybook)
+2. [Por que usar Storybook?](#por-que-usar-storybook)
+3. [Como implementar o Storybook](#como-implementar-o-storybook)
+4. [Visão Geral do Pipeline](#visão-geral-do-pipeline)
+5. [Diagrama de Fluxo](#diagrama-de-fluxo)
+6. [Etapas Detalhadas](#etapas-detalhadas)
+7. [Setup do Repositório](#setup-do-repositório)
+8. [Pipeline CI/CD](#pipeline-cicd)
+9. [Consumindo a Lib](#consumindo-a-lib)
+10. [Boas Práticas](#boas-práticas)
+11. [Referências](#referências)
 
 ---
 
-## Visão Geral
+## O que é Storybook?
+
+O **Storybook** é uma ferramenta open source para desenvolvimento isolado, documentação e testes visuais de componentes de interface. Ele permite criar um catálogo interativo dos componentes do seu Design System, facilitando a visualização, testes e colaboração entre times de design e desenvolvimento.
+
+---
+
+## Por que usar Storybook?
+
+- 📚 **Documentação viva:** Cada componente tem exemplos interativos e atualizados automaticamente.
+- 🧪 **Testes visuais:** Detecta regressões de UI rapidamente.
+- 🤝 **Integração Design-Dev:** Designers e devs falam a mesma língua, usando os mesmos exemplos.
+- 🚀 **Onboarding rápido:** Novos membros entendem rapidamente o Design System.
+- 🔍 **Acessibilidade:** Plugins como A11y ajudam a garantir componentes acessíveis.
+
+---
+
+## Como implementar o Storybook
+
+### Instalação
+
+```sh
+pnpm add -D @storybook/angular @storybook/addon-essentials
+```
+
+### Inicialização
+
+```sh
+pnpm dlx sb init --type angular
+```
+
+### Estrutura recomendada
+
+```
+libs/design-system/
+├─ src/
+│  ├─ button/
+│  │   ├─ button.component.ts
+│  │   └─ button.stories.ts
+│  └─ input/
+│      └─ input.stories.ts
+├─ .storybook/
+│   ├─ main.js
+│   └─ preview.js
+```
+
+### Exemplo de story
+
+```ts
+// button.stories.ts
+import { ButtonComponent } from './button.component';
+import { moduleMetadata } from '@storybook/angular';
+
+export default {
+  title: 'Design System/Button',
+  component: ButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [],
+    }),
+  ],
+};
+
+export const Primary = {
+  args: {
+    label: 'Botão Primário',
+    variant: 'primary',
+  },
+};
+```
+
+### Rodando localmente
+
+```sh
+pnpm storybook
+```
+
+### Gerando build estático
+
+```sh
+pnpm build:storybook
+# Gera a pasta storybook-static/
+```
+
+---
+
+## Visão Geral do Pipeline
 
 Este fluxo automatiza **do commit ao consumo**:
 
@@ -34,26 +122,29 @@ Este fluxo automatiza **do commit ao consumo**:
 ## Diagrama de Fluxo
 
 ```mermaid
-graph TD
+flowchart TD
   subgraph Dev Cycle
     A[👩‍💻 Developer] -->|1| B[Git Repo]
     B -->|2| C[CI/CD 🚀]
-    C -->|3a| D[📦 AWS CodeArtifact]
-    C -->|3b| E[🌐 Storybook<br>CloudFront]
+    C -->|3a| D[<img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazonaws.svg" width="20"/> <b>AWS CodeArtifact</b>]
+    C -->|3b| E[<img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazonaws.svg" width="20"/> <b>Storybook<br>S3</b>]
+    E -->|Certificado| F[<img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazoncloudfront.svg" width="20"/> <b>CloudFront<br>+ SSL</b>]
   end
   D -->|4| G[App 1]
   D -->|4| H[App 2]
-  E --> G
-  E --> H
+  F --> G
+  F --> H
 
-  classDef num fill:#f59e0b,stroke:#b45309,color:#fff,stroke-width:2px;
+  classDef aws fill:#f1f5f9,stroke:#f59e0b,stroke-width:2px;
+  class D,E,F aws;
 ```
 
-> **Legenda** (canto inferior direito)
+> **Legenda**
 >
-> * **Círculos numerados** → etapas sequenciais.
-> * **Caixas com ícones** → entidades do fluxo.
-> * **Setas** → direção de dependência ou entrega.
+> - **Ícones AWS**: Representam serviços gerenciados (CodeArtifact, S3, CloudFront).
+> - **Certificado CloudFront**: Indica HTTPS/SSL para a documentação.
+> - **Setas**: Mostram fluxo de publicação e consumo.
+> - **Apps**: Consumidores do pacote e da documentação.
 
 ---
 
@@ -80,7 +171,7 @@ libs/design-system/
 └─ project.json (Nx) | angular.json (Angular CLI)
 ```
 
-* Storybook stories ficam lado a lado do componente (`button.stories.ts`).
+* Stories ficam lado a lado do componente (`button.stories.ts`).
 * `package.json` possui `publishConfig.registry` apontando para CodeArtifact.
 * Versão controlada por **Conventional Commits** + `standard-version`.
 
@@ -160,6 +251,7 @@ No `angular.json` ou `tsconfig.json`, nenhuma configuração extra — component
 
 ## Referências
 
+* [Storybook Docs](https://storybook.js.org/docs/angular/get-started/introduction)
 * AWS CodeArtifact Docs – Publishing npm packages
 * AWS CloudFront + S3 – Static website best practices
 * Storybook Docs – Continuous Deployment
