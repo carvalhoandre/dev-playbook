@@ -256,3 +256,9 @@ No `angular.json` ou `tsconfig.json`, nenhuma configuração extra — component
 * AWS CloudFront + S3 – Static website best practices
 * Storybook Docs – Continuous Deployment
 * "Design System CI/CD" – talk by Brad Frost
+
+<div align="center">
+
+Feito com 💙 para devs que buscam qualidade e agilidade em seus projetos.
+
+</div>

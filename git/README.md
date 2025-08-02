@@ -361,3 +361,10 @@ Refs: #901
 ## Licença
 
 Conteúdo derivado unicamente de *Pro Git* sob **CC BY‑NC‑SA 3.0**.
+
+
+<div align="center">
+
+Feito com 💙 para devs que buscam qualidade e agilidade em seu git.
+
+</div>

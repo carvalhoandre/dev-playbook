@@ -266,3 +266,10 @@ ngOnInit() {
 * [NgRx Docs – Meta‑Reducers](https://ngrx.io/guide/store/metareducers)
 * [Jeremy Elbourn – "State Management Patterns"](https://www.youtube.com/watch?v=6mTbuzafcII)
 * [Jake Archibald – IndexedDB 2.0 Guide](https://developers.google.com/web/ilt/pwa/working-with-indexeddb)
+
+
+<div align="center">
+
+Feito com 💙 para devs que buscam qualidade e agilidade em seus states.
+
+</div>
