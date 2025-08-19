@@ -1,0 +1,441 @@
+import { Meta } from '@storybook/blocks';
+import React from 'react';
+
+<Meta 
+  title="Design System/Value Delivery" 
+  parameters={{ 
+    docs: { 
+      description: {
+        component: 'A comprehensive guide demonstrating the business value of implementing a Design System'
+      }
+    }
+  }}
+/>
+
+# Design System — Value Delivery
+
+> **Quick Pitch:** Think of a Design System as a **corporate LEGO kit**: standardized, beautiful, and safe pieces that allow teams to **build screens like assembling models**, with pit-stop speed — without sacrificing quality.
+
+---
+
+## Executive Summary
+
+- **Problem**: Screens built from scratch vary in quality, consume time, and generate rework.
+- **Solution**: A **Design System** with reusable components, tokens, and clear guidelines.
+- **Value**: **fewer hours per feature, fewer bugs, more consistency and accessibility**.
+
+{/* Configuration Block - Easy to adjust simulations */}
+const CFG = {
+  squads: 6,
+  featuresPerMonth: 4,
+  hoursBefore: 60,  // hours to deliver 1 feature without DS (educational example)
+  hoursAfter: 23,   // hours with DS (reuse + standardization)
+  rate: 180,        // R$ per hour (average allocated cost)
+  setupWeeks: 4,    // initial DS setup weeks (pilot + foundations)
+  setupPeople: 3,   // 2 devs + 1 designer dedicated
+  hoursPerWeek: 40,
+  adoption3m: 0.5,  // expected adoption in 3 months
+  adoption6m: 0.85, // expected adoption in 6 months
+};
+
+{/* Calculations */}
+const hoursSavedPerFeature = CFG.hoursBefore - CFG.hoursAfter;
+const monthlyHoursSavedRaw = hoursSavedPerFeature * CFG.featuresPerMonth * CFG.squads;
+const monthlySavingsRaw = monthlyHoursSavedRaw * CFG.rate;
+const yearlySavingsRaw = monthlySavingsRaw * 12;
+
+const setupCostRaw = CFG.setupWeeks * CFG.hoursPerWeek * CFG.setupPeople * CFG.rate;
+const netMonthlyBenefitRaw = monthlySavingsRaw - (CFG.setupPeople * CFG.rate * CFG.hoursPerWeek); // monthly DS team cost (approx.)
+const paybackMonths = setupCostRaw / Math.max(netMonthlyBenefitRaw, 1);
+
+{/* Utility functions */}
+const fmt = (n) => n.toLocaleString?.('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) ?? `R$ ${Math.round(n).toLocaleString('pt-BR')}`;
+const num = (n) => n.toLocaleString?.('pt-BR') ?? `${n}`;
+
+{/* Value Cards Component */}
+function ValueCard({ label, value, footnote }) {
+  return (
+    <div style={{
+      padding: 16,
+      borderRadius: 16,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+      border: '1px solid rgba(0,0,0,0.06)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 4,
+      minWidth: 220,
+      backgroundColor: '#ffffff'
+    }}>
+      <div style={{ fontSize: 12, opacity: 0.7, color: '#666' }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 700, color: '#1a1a1a' }}>{value}</div>
+      {footnote && <div style={{ fontSize: 12, opacity: 0.6, color: '#888' }}>{footnote}</div>}
+    </div>
+  );
+}
+
+{/* Pill Component */}
+function Pill({ children }) {
+  return (
+    <span style={{
+      padding: '4px 10px',
+      borderRadius: 999,
+      border: '1px solid rgba(0,0,0,0.1)',
+      fontSize: 12,
+      background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,245,245,0.9))',
+      color: '#333'
+    }}>
+      {children}
+    </span>
+  );
+}
+
+{/* Value Metrics Display */}
+<div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', margin: '24px 0' }}>
+  <ValueCard 
+    label="Hours saved/feature" 
+    value={`${num(hoursSavedPerFeature)} h`} 
+    footnote={`${CFG.hoursBefore}h → ${CFG.hoursAfter}h`} 
+  />
+  <ValueCard 
+    label="Monthly savings (simulated)" 
+    value={fmt(monthlySavingsRaw)} 
+    footnote={`${num(monthlyHoursSavedRaw)} h saved/month`} 
+  />
+  <ValueCard 
+    label="Annual savings (simulated)" 
+    value={fmt(yearlySavingsRaw)} 
+    footnote="based on current volume and rate" 
+  />
+  <ValueCard 
+    label="Estimated payback" 
+    value={`${paybackMonths.toFixed(1)} month(s)`} 
+    footnote={`Setup ≈ ${fmt(setupCostRaw)} • Net benefit/month ≈ ${fmt(netMonthlyBenefitRaw)}`} 
+  />
+</div>
+
+> **Business Message:** With reuse and governance, **we gain speed without losing quality**. Financial return appears **in the first quarter** and expands as adoption grows.
+
+---
+
+## What it is (in 1 minute)
+
+A Design System is a **standard parts kit** (UI components, tokens, interaction patterns) + **how to use** (documentation and examples). It **prevents reinventing the wheel** in each squad and **transforms design & front-end into a reliable factory**.
+
+- <Pill>Speed</Pill> build screens quickly
+- <Pill>Quality</Pill> tested and accessible patterns
+- <Pill>Predictability</Pill> fewer incidents and variation
+
+---
+
+## Before × After (playful example: "Quote Flow")
+
+**Without DS** vs **With DS** for 1 typical feature:
+
+| Activity | Without DS | With DS |
+|---|---:|---:|
+| Visual discovery & UX | 12h | 6h |
+| UI assembly | 24h | 8h |
+| Visual QA | 10h | 4h |
+| Accessibility (A11y) | 6h | 2h |
+| Post-release fixes | 8h | 3h |
+| **Total** | **60h** | **23h** |
+
+> **Quick read:** **−61%** in UI effort for the same delivery.
+
+{/* Before/After Visual Component */}
+function MetricBar({ label, hours, max, color = '#007acc' }) {
+  const pct = Math.max(3, Math.round((hours / max) * 100));
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, opacity: 0.75, marginBottom: 4 }}>
+        <span>{label}</span>
+        <span>{hours}h</span>
+      </div>
+      <div style={{ height: 12, background: '#eee', borderRadius: 999, overflow: 'hidden' }}>
+        <div style={{ 
+          height: '100%', 
+          width: `${pct}%`, 
+          borderRadius: 999, 
+          background: color,
+          boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.12)' 
+        }} />
+      </div>
+    </div>
+  );
+}
+
+function BeforeAfterBars() {
+  const max = Math.max(CFG.hoursBefore, CFG.hoursAfter);
+  return (
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: '1fr 1fr', 
+      gap: 24, 
+      alignItems: 'end', 
+      margin: '24px 0',
+      padding: '20px',
+      background: '#f8f9fa',
+      borderRadius: 12
+    }}>
+      <div>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: '#dc3545' }}>Before (Without DS)</div>
+        <MetricBar label="Total effort" hours={CFG.hoursBefore} max={max} color="#dc3545" />
+      </div>
+      <div>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: '#28a745' }}>After (With DS)</div>
+        <MetricBar label="Total effort" hours={CFG.hoursAfter} max={max} color="#28a745" />
+      </div>
+    </div>
+  );
+}
+
+<BeforeAfterBars />
+
+---
+
+## Success Metrics (north star + operational)
+
+- **Screen lead time** (idea → prod): target **−30%** in 3 months
+- **Reuse rate** (# DS components / # total): target **≥ 70%** in 6 months
+- **UI bugs per release**: target **−40%** in 3–6 months
+- **Lighthouse UI/A11y**: target **≥ 90**
+- **Squad satisfaction** (internal NPS): target **≥ +40**
+
+> Dashboard in Product team will track these indicators by squad and by product.
+
+---
+
+## Projections & Growth (adoption)
+
+- **3 months**: adoption **{Math.round(CFG.adoption3m*100)}%** → first visible gains, core patterns ready (buttons, forms, tables, toasts, grid)
+- **6 months**: adoption **{Math.round(CFG.adoption6m*100)}%** → sector libraries (e.g., quotes, payments, authentication) documented with examples
+- **12 months**: governance maturity, **stable library** + contribution and deprecation guide
+
+> *S-curve adoption*: we start slower (setup and persuasion), then accelerate with **network effect**.
+
+{/* Adoption Curve Component */}
+function AdoptionCurve() {
+  const W = 640, H = 240, P = 36;
+  const k = 1.2, x0 = 6; // slope and midpoint (~6 months)
+  function logistic(x) { return 1/(1+Math.exp(-k*(x-x0))); }
+  
+  const points = Array.from({length: 121}, (_, i) => {
+    const m = i/10; // 0..12 months
+    const y = logistic(m);
+    const xPx = P + (m/12)*(W - 2*P);
+    const yPx = H - P - y*(H - 2*P);
+    return [xPx, yPx];
+  });
+  
+  const d = points.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(' ');
+  const m3x = P + (3/12)*(W - 2*P);
+  const m6x = P + (6/12)*(W - 2*P);
+  const y3 = H - P - (CFG.adoption3m)*(H - 2*P);
+  const y6 = H - P - (CFG.adoption6m)*(H - 2*P);
+  
+  return (
+    <div style={{ margin: '24px 0' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <Pill>S-curve adoption</Pill>
+        <Pill>3m: {Math.round(CFG.adoption3m*100)}%</Pill>
+        <Pill>6m: {Math.round(CFG.adoption6m*100)}%</Pill>
+      </div>
+      <svg width={W} height={H} style={{ maxWidth: '100%', height: 'auto', display: 'block', border: '1px solid #eee', borderRadius: 12 }}>
+        <rect x={0} y={0} width={W} height={H} fill="#fff" />
+        {/* Axes */}
+        <line x1={P} y1={H-P} x2={W-P} y2={H-P} stroke="#888" strokeWidth={1} />
+        <line x1={P} y1={H-P} x2={P} y2={P} stroke="#888" strokeWidth={1} />
+        {/* Light grid */}
+        {Array.from({length: 4}, (_, i) => {
+          const y = P + i*((H-2*P)/3);
+          return <line key={i} x1={P} y1={y} x2={W-P} y2={y} stroke="#eee" />;
+        })}
+        {/* Curve */}
+        <path d={d} fill="none" stroke="#007acc" strokeWidth={2} />
+        {/* 3m and 6m markers */}
+        <circle cx={m3x} cy={y3} r={4} fill="#007acc" />
+        <circle cx={m6x} cy={y6} r={4} fill="#007acc" />
+        <text x={m3x+6} y={y3-6} fontSize={12} fill="#333">3m</text>
+        <text x={m6x+6} y={y6-6} fontSize={12} fill="#333">6m</text>
+        {/* Labels */}
+        <text x={W-P-10} y={H-P-6} fontSize={12} textAnchor="end" fill="#666">Months</text>
+        <text x={P+4} y={P+12} fontSize={12} fill="#666">Adoption</text>
+      </svg>
+    </div>
+  );
+}
+
+<AdoptionCurve />
+
+---
+
+## Value Roadmap
+
+1. **Pilot (4–6 weeks)**: pattern inventory, tokens, 10 critical components, Storybook documentation
+2. **Phase 2 (Month 2–3)**: advanced tables, complex forms, theme, end-to-end A11y
+3. **Phase 3 (Month 4–6)**: writing guidelines (microcopy), page examples, code generation/boilerplates
+4. **Phase 4 (Month 6–12)**: automatic metrics, UI linting, migration playbooks
+
+{/* Roadmap Timeline Component */}
+function RoadmapTimeline() {
+  const months = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+  const phases = [
+    { label: 'Pilot', start: 1, end: 2, color: '#007acc' },
+    { label: 'Phase 2', start: 3, end: 4, color: '#28a745' },
+    { label: 'Phase 3', start: 5, end: 7, color: '#ffc107' },
+    { label: 'Phase 4', start: 8, end: 12, color: '#6f42c1' }
+  ];
+  
+  const row = (phase) => {
+    const total = 12;
+    const startPct = ((phase.start-1)/total)*100;
+    const widthPct = ((phase.end-phase.start+1)/total)*100;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '8px 0' }}>
+        <div style={{ width: 140, fontSize: 12, fontWeight: 500 }}>{phase.label}</div>
+        <div style={{ flex: 1, height: 16, background: '#f1f1f1', borderRadius: 999, position: 'relative' }}>
+          <div style={{ 
+            position: 'absolute', 
+            left: `${startPct}%`, 
+            width: `${widthPct}%`, 
+            height: '100%', 
+            borderRadius: 999, 
+            background: phase.color,
+            boxShadow: 'inset 0 -6px 12px rgba(0,0,0,0.12)' 
+          }} />
+        </div>
+      </div>
+    );
+  };
+  
+  return (
+    <div style={{ margin: '24px 0', padding: '20px', background: '#f8f9fa', borderRadius: 12 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        {months.map(m => 
+          <div key={m} style={{ width: (100/12)+'%', textAlign: 'center', fontSize: 11, opacity: 0.7 }}>
+            {m}
+          </div>
+        )}
+      </div>
+      {phases.map(phase => row(phase))}
+    </div>
+  );
+}
+
+<RoadmapTimeline />
+
+---
+
+## Light Governance (no bureaucracy)
+
+- **Clear owner** (Design Ops + Frontend Platform)
+- **Entry criteria** (accessibility, visual tests, semantics, tokens)
+- **Painless versioning** (semver + changelog + deprecation codes)
+- **Contribution cycle**: short PRDs, examples, pairing with maintainers
+
+---
+
+## FAQ for Managers
+
+**"Doesn't this constrain us?"** → No. DS covers 80% of cases. The remaining 20% becomes learning to evolve the kit.
+
+**"How much does maintenance cost?"** → Lean team (2 devs + 1 designer) and automations (visual and a11y tests) keep the system healthy.
+
+**"What if the brand changes?"** → **Thematic tokens** change colors, typography and spacing without refactoring screens.
+
+**"How do we measure ROI?"** → Hours saved × hourly rate − maintenance cost. Tracked monthly by squad.
+
+---
+
+## Call to Action
+
+1) **Choose pilot product** and goals (e.g., −30% screen lead time)
+2) **Approve DS team dedication** (2 devs + 1 designer)
+3) **Schedule checkpoint** in 6 weeks with metrics and next steps
+
+---
+
+### Important Notes
+- Numbers here are **educational examples** to make value tangible. Adjust the **CFG** block above with your real data.
+- This document is in **Storybook/Docs** so Product can see **executable examples**, not just theory.
+
+> 💡 **Tip**: add short images/gifs showing screen assembly with DS components (before × after). This reinforces the **pit stop** narrative and speed gain.
+
+---
+
+## Assembly Line Visualization
+
+{/* Assembly Line Component */}
+function Step({ title, subtitle, color = '#007acc' }) {
+  return (
+    <div style={{
+      padding: 16,
+      border: `1px solid ${color}20`,
+      borderRadius: 16,
+      minWidth: 160,
+      background: `linear-gradient(180deg, #fff, ${color}05)`,
+      boxShadow: '0 10px 24px rgba(0,0,0,0.08)'
+    }}>
+      <div style={{ fontSize: 14, opacity: 0.7, color: '#666' }}>{subtitle}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: color }}>{title}</div>
+    </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg width="36" height="24" viewBox="0 0 36 24" style={{ opacity: 0.6 }}>
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="#007acc" />
+        </marker>
+      </defs>
+      <line x1="0" y1="12" x2="34" y2="12" strokeWidth="2" stroke="#007acc" markerEnd="url(#arrow)" />
+    </svg>
+  );
+}
+
+function AssemblyLineDiagram() {
+  return (
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 8, 
+      flexWrap: 'wrap', 
+      margin: '24px 0',
+      padding: '20px',
+      background: '#f8f9fa',
+      borderRadius: 12
+    }}>
+      <Step title="Tokens" subtitle="foundation" color="#007acc" />
+      <Arrow />
+      <Step title="Components" subtitle="reuse" color="#28a745" />
+      <Arrow />
+      <Step title="Patterns" subtitle="guidelines" color="#ffc107" />
+      <Arrow />
+      <Step title="Screens" subtitle="assembly" color="#6f42c1" />
+      <Arrow />
+      <Step title="Release" subtitle="value" color="#dc3545" />
+    </div>
+  );
+}
+
+<AssemblyLineDiagram />
+
+---
+
+## Business Impact Summary
+
+| Metric | Before DS | After DS | Improvement |
+|--------|-----------|----------|-------------|
+| **Development Speed** | 60h/feature | 23h/feature | **-61%** |
+| **Monthly Savings** | R$ 0 | {fmt(monthlySavingsRaw)} | **New value** |
+| **Annual ROI** | N/A | {fmt(yearlySavingsRaw)} | **Clear return** |
+| **Quality** | Variable | Consistent | **Standardized** |
+| **Accessibility** | Manual | Built-in | **Compliant** |
+
+> **Key Takeaway**: Design Systems transform UI development from **craftsmanship** to **manufacturing** — predictable, scalable, and measurable business value.
+
+---
+
+*This document demonstrates how technical decisions directly impact business metrics, making it easier for non-technical managers to understand and approve Design System investments.*
