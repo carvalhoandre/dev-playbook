@@ -1,0 +1,34 @@
+@startuml
+title Microfrontends — Angular + Nx + Module Federation
+
+skinparam componentStyle rectangle
+
+package "Host Shell" as HOST {
+  [App Shell]\n[Auth]\n[Layout]\n[Event Bus]
+}
+
+package "Remotes" {
+  [MF - Catálogo] as MFCatalog
+  [MF - Scheduler] as MFSched
+  [MF - Perfil] as MFProfile
+  [MF - Admin Prestador] as MFAdmin
+}
+
+package "Libs Nx (Compartilhadas)" as LIBS {
+  [UI (Design System)]
+  [Data Access (DTOs, Facades)]
+  [Utils]
+  [Testing]
+  [Typed Events]
+}
+
+HOST --> MFCatalog : Module Federation
+HOST --> MFSched : Module Federation
+HOST --> MFProfile : Module Federation
+HOST --> MFAdmin : Module Federation
+
+MFCatalog ..> LIBS
+MFSched ..> LIBS
+MFProfile ..> LIBS
+MFAdmin ..> LIBS
+@enduml

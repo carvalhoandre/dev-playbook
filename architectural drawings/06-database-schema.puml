@@ -1,0 +1,102 @@
+@startuml
+title Modelo Relacional Simplificado (ER)
+
+hide circle
+skinparam classAttributeIconSize 0
+
+class tenants {
+  +id: uuid [PK]
+  name: text
+  tz: text
+  active: boolean
+}
+
+class services {
+  +id: uuid [PK]
+  tenant_id: uuid [FK]
+  name: text
+  duration_min: int
+  price_cents: int
+  buffer_before: int
+  buffer_after: int
+  active: boolean
+}
+
+class resources {
+  +id: uuid [PK]
+  tenant_id: uuid [FK]
+  name: text
+  type: text
+  capacity: int
+  active: boolean
+}
+
+class service_resources {
+  +service_id: uuid [FK]
+  +resource_id: uuid [FK]
+}
+
+class customers {
+  +id: uuid [PK]
+  email: text
+  phone: text
+  name: text
+  marketing_opt_in: boolean
+  created_at: timestamptz
+}
+
+class bookings {
+  +id: uuid [PK]
+  tenant_id: uuid [FK]
+  customer_id: uuid [FK]
+  service_id: uuid [FK]
+  resource_id: uuid [FK]
+  starts_at: timestamptz
+  ends_at: timestamptz
+  status: text
+  source: text
+  external_ref: text
+  idempotency_key: text [unique]
+  created_at: timestamptz
+  updated_at: timestamptz
+}
+
+class payments {
+  +id: uuid [PK]
+  booking_id: uuid [FK]
+  provider: text
+  status: text
+  amount_cents: int
+  provider_ref: text
+  created_at: timestamptz
+}
+
+class integration_endpoints {
+  +tenant_id: uuid [PK]
+  provider: text
+  config_json: jsonb
+  active: boolean
+}
+
+class notifications {
+  +id: uuid [PK]
+  booking_id: uuid [FK]
+  channel: text
+  payload_json: jsonb
+  status: text
+  created_at: timestamptz
+  sent_at: timestamptz
+}
+
+tenants "1" -- "0..*" services : tenant_id
+tenants "1" -- "0..*" resources : tenant_id
+services "1" -- "0..*" service_resources : service_id
+resources "1" -- "0..*" service_resources : resource_id
+customers "1" -- "0..*" bookings : customer_id
+tenants "1" -- "0..*" bookings : tenant_id
+services "1" -- "0..*" bookings : service_id
+resources "1" -- "0..*" bookings : resource_id
+bookings "1" -- "0..1" payments : booking_id
+bookings "1" -- "0..*" notifications : booking_id
+tenants "1" -- "0..1" integration_endpoints : tenant_id
+@enduml

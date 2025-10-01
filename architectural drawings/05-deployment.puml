@@ -1,0 +1,41 @@
+@startuml
+title Deployment — PWA + CDN + K8s + Redis + Postgres
+
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor #555555
+}
+skinparam node {
+  BackgroundColor #f8f8f8
+}
+
+node "Cliente (Browser/PWA)" as CLIENT
+node "CDN/Edge" as CDN
+node "Kubernetes Cluster" as K8S {
+  node "Namespace app" {
+    [BFF Pods (NestJS) xN]
+    [Workers Pods (BullMQ) xM]
+    [Storybook/Preview (opc.)]
+  }
+  node "Namespace data" {
+    node "Redis Cluster" as REDIS
+    node "PostgreSQL HA" as PG {
+      [Primary]
+      [Replica(s)]
+    }
+  }
+  node "Observabilidade" as OBS {
+    [OTel Collector]
+    [Prometheus/Grafana]
+    [Sentry Relay]
+  }
+}
+
+CLIENT --> CDN : Static assets (MFEs, SW)
+CDN --> [BFF Pods (NestJS) xN] : API (HTTPS)
+[BFF Pods (NestJS) xN] --> REDIS : Cache/Locks
+[BFF Pods (NestJS) xN] --> [Workers Pods (BullMQ) xM] : Filas
+[Workers Pods (BullMQ) xM] --> PG : CRUD/Jobs
+[BFF Pods (NestJS) xN] --> PG : CRUD
+[BFF Pods (NestJS) xN] --> OBS : Traces/Logs/Metrics
+@enduml

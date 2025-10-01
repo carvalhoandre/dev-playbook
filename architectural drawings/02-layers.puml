@@ -1,0 +1,40 @@
+@startuml
+title Camadas Técnicas — PWA, BFF, Dados
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+rectangle "Frontend (Angular PWA)" as FE {
+  [UI/UX + DS\nStandalone Components\nTailwind, A11y]
+  [Data Access Facades\nRxJS Signals\nService Worker/Offline]
+}
+
+rectangle "Microfrontends (Nx/Module Federation)" as MF {
+  [Shell Host]
+  [Routing/Auth/Layout]
+  [MF - Catálogo]
+  [MF - Scheduler]
+  [MF - Perfil]
+  [MF - Admin]
+}
+
+rectangle "BFF (NestJS)" as BFF {
+  [Controllers/OpenAPI]
+  [Interceptors/Guards]
+  [Mappers/Normalizers]
+  [Cache & Locks (Redis)]
+  [Outbox Publisher]
+}
+
+database "PostgreSQL" as PG
+node "Redis Cluster" as REDIS
+node "Workers (BullMQ)" as WK
+node "Integrações" as EXT
+
+FE -down-> MF : UI Modules/Contracts
+MF -down-> BFF : REST/GraphQL
+BFF --> PG : SQL
+BFF --> REDIS : Cache/Lock
+BFF --> WK : Filas (BullMQ)
+WK --> EXT : Webhooks/REST
+@enduml

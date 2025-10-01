@@ -1,0 +1,31 @@
+@startuml
+title Fluxo de Agendamento — Idempotência + Lock + Outbox
+
+autonumber
+actor Cliente as C
+participant "BFF (NestJS)" as B
+participant "Redis" as R
+participant "PostgreSQL" as D
+participant "Worker (BullMQ)" as W
+participant "Sistema Externo" as X
+
+C -> B : POST /bookings (Idempotency-Key)
+B -> R : SETNX lock:resource:slot (ttl=30s)
+alt Lock adquirido
+  B -> D : BEGIN; INSERT booking (status=pending); COMMIT
+  B -> D : INSERT outbox (BookingCreated)
+  B --> C : 201 Created (pending_sync=true)
+
+  W -> D : READ outbox (poll/stream)
+  W -> X : Criar/confirmar agendamento
+  alt sucesso
+    X --> W : 200 OK + external_ref
+    W -> D : UPDATE booking (confirmed, external_ref)
+    W -> R : INVALIDATE cache timeslots afetados
+  else falha
+    W -> D : UPDATE booking (failed)
+  end
+else Lock recusado
+  B --> C : 409 Conflict (slot indisponível)
+end
+@enduml
